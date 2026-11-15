@@ -11,6 +11,8 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultNamingSelectorIntegrationTest_testSelect {
 
@@ -21,8 +23,7 @@ public class DefaultNamingSelectorIntegrationTest_testSelect {
         int total = random.nextInt(32) + 1;
         int health = random.nextInt(total);
 
-        NamingContext namingContext_proxy = new NamingContext_Proxy(<--NamingContext_REAL_CONFIGURED_INSTANCE-->);
-        namingContext_proxy.getInstances();
+        NamingContext namingContext_proxy = getMockNamingContext(total, health);
         NamingResult result = namingSelector.select(namingContext_proxy);
 
         assertEquals(health, result.getResult().size());
@@ -30,7 +31,9 @@ public class DefaultNamingSelectorIntegrationTest_testSelect {
     }
 
     private NamingContext getMockNamingContext(int total, int health) {
-        NamingContext namingContext_proxy = new NamingContext_Proxy(<--NamingContext_REAL_CONFIGURED_INSTANCE-->);
+        NamingContext realContext = mock(NamingContext.class);
+        when(realContext.getInstances()).thenReturn(getInstance(total, health)); //This line is not fully neccesary to make it compile
+        NamingContext namingContext_proxy = new NamingContext_Proxy(realContext);
         namingContext_proxy.getInstances();
         return namingContext_proxy;
     }
